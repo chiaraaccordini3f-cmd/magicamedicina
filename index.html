@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La medicina di George</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500;600&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: una colonna di lettura stretta, barra comandi fissa in alto, impostazioni a scomparsa.
+   Il nome della pagina è la scena: pozione verde, evidenziatore giallo. */
+:root {
+  --bg: #F2F7F5;
+  --surface: #FFFFFF;
+  --ink: #14211D;
+  --muted: #4B605A;
+  --line: #CFDDD8;
+  --accent: #0F7A5C;
+  --accent-ink: #FFFFFF;
+  --hl: #FFD43B;
+  --hl-ink: #1A1500;
+  --hover: #DDEFE8;
+  --read: #7A8F89;
+  --prod: #7B3FA0;
+  --font-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --font-atk: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --font-lex: "Lexend", "Verdana", system-ui, sans-serif;
+  --font-ser: Georgia, "Times New Roman", serif;
+  --font-body: var(--font-atk);
+  --fs: 24px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1815; --surface: #16241F; --ink: #E9F2EE; --muted: #9DB5AD; --line: #2B3F38;
+    --accent: #3DDBA9; --accent-ink: #05241A; --hl: #FFD43B; --hl-ink: #1A1500;
+    --hover: #21362F; --read: #6F8A81; --prod: #C9A0F0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1815; --surface: #16241F; --ink: #E9F2EE; --muted: #9DB5AD; --line: #2B3F38;
+  --accent: #3DDBA9; --accent-ink: #05241A; --hl: #FFD43B; --hl-ink: #1A1500;
+  --hover: #21362F; --read: #6F8A81; --prod: #C9A0F0; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-top: 0; padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+}
+body.f-lex { --font-body: var(--font-lex); }
+body.f-ser { --font-body: var(--font-ser); }
+.wrap { max-width: 52rem; margin: 0 auto; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+header { padding: 28px 0 14px; }
+.kicker { margin: 0 0 6px; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.9rem, 6vw, 2.9rem); line-height: 1.1; text-wrap: balance; }
+.lead { margin: 0; max-width: 40rem; color: var(--muted); }
+
+.dock {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.dock .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-bottom: 10px; }
+.btn {
+  min-height: 48px; padding: 0 18px; border-radius: 10px; border: 2px solid var(--line);
+  background: var(--surface); font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); min-width: 9.5rem; justify-content: center; }
+.btn svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.status { margin-left: auto; font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 5px; background: var(--line); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+
+details.settings { margin: 16px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+details.settings summary { cursor: pointer; padding: 12px 16px; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 16px 22px; padding: 4px 16px 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label, .field > .lab { font-size: .85rem; font-weight: 700; color: var(--muted); }
+select { min-height: 44px; padding: 0 10px; border-radius: 8px; border: 2px solid var(--line); background: var(--bg); width: 100%; }
+input[type=range] { width: 100%; accent-color: var(--accent); min-height: 44px; }
+.inline { display: flex; align-items: center; gap: 10px; }
+.check { display: flex; align-items: flex-start; gap: 10px; min-height: 32px; }
+.check input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--accent); flex: none; }
+.val { font-variant-numeric: tabular-nums; min-width: 3.2rem; font-weight: 700; }
+.roles { grid-column: 1 / -1; gap: 10px; }
+.role { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 12rem auto; gap: 10px 12px; align-items: center; }
+.role b { font-weight: 700; }
+.tone { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); font-weight: 700; }
+.tone input { min-height: 36px; }
+.btn.small { min-height: 40px; padding: 0 14px; }
+.mini { margin: 0; font-size: .85rem; color: var(--muted); }
+@media (max-width: 700px) { .role { grid-template-columns: 1fr auto; } .role b { grid-column: 1 / -1; } .tone { grid-column: 1 / -1; } }
+.note { margin: 0; padding: 0 16px 14px; font-size: .9rem; color: var(--muted); }
+.note:empty { display: none; }
+
+main { padding: 26px 0 0; }
+#testo { font-size: var(--fs); line-height: 1.8; max-width: 36em; text-wrap: pretty; }
+#testo p { margin: 0 0 .7em; }
+#testo p.li { margin: 0; padding-left: 1.4em; font-weight: 700; letter-spacing: .02em; }
+#testo p.li + p:not(.li) { margin-top: .7em; }
+#testo p.li:nth-child(n) { margin-bottom: .1em; }
+.w { cursor: pointer; border-radius: .2em; transition: background-color .12s; }
+.w:hover { background: var(--hover); }
+.w.it { font-style: italic; }
+#testo.dim .w.read { color: var(--read); }
+#testo.showprod .w.prod { color: var(--prod); text-decoration: underline wavy; text-decoration-thickness: .06em; text-underline-offset: .22em; }
+.w.now, .w.now:hover { background: var(--hl); color: var(--hl-ink); box-shadow: 0 0 0 .1em var(--hl); }
+.hint { margin: 28px 0 0; font-size: .9rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .w { transition: none; } }
+@media (max-width: 520px) { .status { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body class="f-atk">
+<div class="wrap">
+  <header>
+    <p class="kicker">Lettura guidata · Italiano</p>
+    <h1>Preparazione della medicina</h1>
+    <p class="lead">Premi <b>Ascolta</b> e segui con gli occhi: la parola che viene letta si illumina. Tocca una parola per far partire la lettura da lì.</p>
+  </header>
+
+  <div class="dock">
+    <div class="row">
+      <button class="btn primary" id="play" type="button" aria-label="Ascolta il brano">
+        <svg id="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
+        <svg id="ico-pause" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z"/></svg>
+        <span id="play-label">Ascolta</span>
+      </button>
+      <button class="btn" id="restart" type="button">Da capo</button>
+      <span class="status" id="status" role="status" aria-live="polite">Pronto</span>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary>Impostazioni di lettura</summary>
+    <div class="grid">
+      <div class="field roles">
+        <span class="lab">Voci</span>
+        <label class="check"><input type="checkbox" id="multi"><span>Una voce diversa per ogni personaggio</span></label>
+        <div class="role"><b>Narratore</b><select id="voice-T" aria-label="Voce del narratore"></select>
+          <label class="tone">Tono <input id="pitch-T" type="range" min="0.5" max="2" step="0.05" value="1"><span class="val" id="pitch-val-T">1,00</span></label>
+          <button class="btn small" id="test-T" type="button">Prova</button></div>
+        <div class="role"><b>Nonna</b><select id="voice-N" aria-label="Voce della nonna"></select>
+          <label class="tone">Tono <input id="pitch-N" type="range" min="0.5" max="2" step="0.05" value="1.5"><span class="val" id="pitch-val-N">1,50</span></label>
+          <button class="btn small" id="test-N" type="button">Prova</button></div>
+        <div class="role"><b>George</b><select id="voice-G" aria-label="Voce di George"></select>
+          <label class="tone">Tono <input id="pitch-G" type="range" min="0.5" max="2" step="0.05" value="1.2"><span class="val" id="pitch-val-G">1,20</span></label>
+          <button class="btn small" id="test-G" type="button">Prova</button></div>
+        <p class="mini">Alcune voci ignorano il tono (succede spesso con le voci online). In quel caso scegli voci diverse per la nonna e per George.</p>
+      </div>
+      <div class="field">
+        <label for="rate">Velocità della voce</label>
+        <div class="inline"><input id="rate" type="range" min="0.6" max="1.3" step="0.05" value="0.9"><span class="val" id="rate-val">0,90×</span></div>
+      </div>
+      <div class="field">
+        <span class="lab">Grandezza del testo</span>
+        <div class="inline">
+          <button class="btn" id="smaller" type="button" aria-label="Rimpicciolisci il testo">A−</button>
+          <button class="btn" id="bigger" type="button" aria-label="Ingrandisci il testo">A+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="font">Carattere</label>
+        <select id="font">
+          <option value="f-atk">Molto leggibile (Atkinson)</option>
+          <option value="f-lex">Spaziato (Lexend)</option>
+          <option value="f-ser">Con le grazie (Georgia)</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="lab">Aiuti visivi</span>
+        <label class="check"><input type="checkbox" id="dim"><span>Attenua le parole già lette</span></label>
+        <label class="check"><input type="checkbox" id="prod"><span>Sottolinea le scritte in MAIUSCOLO (nomi dei prodotti)</span></label>
+      </div>
+    </div>
+    <p class="note" id="note" role="status"></p>
+  </details>
+
+  <main>
+    <article id="testo" lang="it"></article>
+    <p class="hint">Barra spaziatrice: ascolta o metti in pausa. La voce è quella installata sul tuo dispositivo.</p>
+  </main>
+</div>
+
+<script>
+(function () {
+  var DATA = [{"t": "George tirò fuori un enorme pentolone dall’armadio e l’appoggiò sul tavolo di cucina.", "k": "p"}, {"t": "«George!» gridò la voce stridula dalla stanza accanto. «Che stai facendo?»", "k": "p", "q": ["N", "N"]}, {"t": "«Niente, nonna».", "k": "p", "q": ["G"]}, {"t": "«Non credere che non ti senta solo perché hai chiuso la porta! Stai giocando con le pentole!»", "k": "p", "q": ["N"]}, {"t": "«Sto riordinando la cucina, nonna».", "k": "p", "q": ["G"]}, {"t": "Silenzio.", "k": "p"}, {"t": "George non aveva assolutamente dubbi sul come avrebbe preparato la sua straordinaria medicina. Non intendeva perdere tempo chiedendosi se metterci dentro un po’ di questo o un pizzico di quello. Molto semplicemente, ci avrebbe messo dentro TUTTO ciò che riusciva a trovare. Non avrebbe traccheggiato, nicchiato, esitato; non si sarebbe chiesto se un particolare ingrediente avrebbe steso a terra la vecchia befana o no. La regola sarebbe stata questa: qualunque cosa vedeva, purché fosse liquida, in polvere o cremosa, ce l’avrebbe sbattuta dentro.", "k": "p"}, {"t": "Nessuno mai aveva preparato una medicina simile prima d’allora. Se anche non avesse veramente curato la nonna, avrebbe comunque prodotto dei risultati esplosivi. Sarebbe valsa la pena di vedere quello che succedeva.", "k": "p"}, {"t": "George decise di fare il giro delle stanze, una per una, e vedere cos’avevano da offrirgli.", "k": "p"}, {"t": "Avrebbe cominciato dalla stanza da bagno. Ci sono sempre un sacco di cose strane nei bagni. Così salì le scale, col suo pentolone stretto al petto.", "k": "p"}, {"t": "In bagno, guardò con occhi bramosi il famoso e vietatissimo armadietto dei medicinali. Ma non vi si avvicinò. Era l’unica cosa in tutta la casa che aveva la proibizione di toccare. Aveva fatto solenne promessa ai suoi genitori a questo riguardo, e non intendeva romperla. C’erano delle cose, là dentro, gli avevano detto, che potevano anche ammazzare le persone, e benché lui volesse preparare una pozione micidiale per la nonna, non voleva certo ritrovarsi con un cadavere tra i piedi. George appoggiò la pentola per terra e si mise al lavoro.", "k": "p"}, {"t": "Il primo ingrediente fu una bottiglia con su scritto SHAMPOO SETALUCE: CAPELLI MORBIDI E LUCENTI. La vuotò nella pentola. «Questo le dovrebbe ripulire ben bene le budella» si disse.", "k": "p", "q": ["G"]}, {"t": "Prese un tubetto pieno di DENTIFRICIO e lo strizzò fino in fondo facendone uscire un unico lungo verme. «Forse questo le sbiancherà un po’ quei suoi orrendi denti marroncini».", "k": "p", "q": ["G"]}, {"t": "C’era una bomboletta spray di SAPONE DA BARBA SUPERSCHIUMA che apparteneva a suo padre. A George piaceva da matti giocare con le bombole spray. Premette il pulsante e vi tenne il dito sopra finché dentro la bombola non rimase più nulla. Una meravigliosa montagna di schiuma bianca si gonfiò nel pentolone.", "k": "p"}, {"t": "Poi con le dita tirò fuori il contenuto di un barattolo di CREMA PER IL VISO VITAMINIZZATA.", "k": "p"}, {"t": "Rovesciò nella pentola una boccettina di SMALTO PER UNGHIE rosso. ‘Se il dentifricio non le pulisce i denti’ pensò, ‘allora questo glieli dipingerà d’un bel rosso brillante’.", "k": "p"}, {"t": "Trovò un altro barattolo di una roba cremosa con su scritto DEPILATORE. SPALMARLO SULLE GAMBE diceva, E LASCIARLO AGIRE PER CINQUE MINUTI. Senza pensarci due volte, George lo vuotò tutto dentro il pentolone.", "k": "p"}, {"t": "C’era poi un flacone con dentro un liquido giallo chiamato FAMOSA LOZIONE ANTIFORFORA DEL DOTTOR FIORE. Ce lo buttò tutto dentro.", "k": "p"}, {"t": "E una cosa che si chiamava BRILLADENT PER LA PULIZIA DELLE DENTIERE. Era una polverina bianca. Buttò dentro anche quella.", "k": "p"}, {"t": "Trovò un’altra bomboletta spray, DEODORANTE SPRAY VIAODOR VI LIBERA diceva, DEI CATTIVI ODORI DEL CORPO PER UN’INTERA GIORNATA. ‘Proprio quello di cui lei ha urgente bisogno’ si disse George, e spruzzò l’intera bombola dentro il pentolone.", "k": "p"}, {"t": "PARAFFINA LIQUIDA, si chiamava il prodotto accanto. Era un grosso flacone. George non aveva la minima idea di cosa provocasse, ma ce lo buttò dentro lo stesso.", "k": "p"}, {"t": "E con questo, pensò guardandosi attorno, aveva esaurito la stanza da bagno.", "k": "p"}, {"t": "Sulla toilette di sua madre, in camera da letto, trovò un’altra deliziosa bombola. LACCA LUSTER. TENERE A VENTI CENTIMETRI DAI CAPELLI E SPRUZZARE LEGGERMENTE. George la spruzzò tutta quanta dentro la pentola. Era davvero spassoso trafficare con quelle bombole.", "k": "p"}, {"t": "C’era una boccetta di profumo che si chiamava FIORI DI RAPA. Sapeva di gorgonzola. Lo vuotò nella pentola.", "k": "p"}, {"t": "Rovesciò dentro anche una grossa scatola tonda di CIPRIA. Si chiamava GESSO ROSA. Sopra c’era un piumino da cipria, e George buttò dentro anche quello per scaramanzia.", "k": "p"}, {"t": "Trovò un paio di ROSSETTI. Tirò fuori i bastoncini rossi e unti dai loro astucci e li aggiunse all’intruglio.", "k": "p"}, {"t": "La camera da letto non aveva altro da offrire, perciò George scese col suo pentolone difilato nella lavanderia, dove gli scaffali erano pieni di ogni sorta di articoli per la casa.", "k": "p"}, {"t": "Il primo che tirò giù era una grossa scatola di SUPERBIANCO PER LAVATRICI AUTOMATICHE. LO SPORCO diceva, SCOMPARE COME PER MAGIA. George non sapeva se la nonna fosse automatica o meno, però era senz’altro una vecchia sporcacciona. «Perciò è meglio che se la prenda tutta» disse, rovesciandoci dentro l’intera scatola.", "k": "p", "q": ["G"]}, {"t": "Poi c’era un grosso barattolo di CERABON PER PAVIMENTI. RIMUOVE LA LORDURA E LA SPORCIZIA DAL VOSTRO PAVIMENTO E LO LASCIA LUCIDO E BRILLANTE. George tirò con le dita fuori dal barattolo la cera molle e arancione e la lasciò cadere nella pentola.", "k": "p"}, {"t": "Poi rovistò nella scatola del necessario per pulire le scarpe: spazzole, scatolette di cera e panni di lana. ‘Vediamo’, pensò, ‘la medicina della nonna è marrone, perciò anche la mia medicina dev’essere marrone o lei sospetterà un tranello’. Per colorarla, decise, avrebbe usato la CERA PER SCARPE MARRONE. Scelse la scatoletta TESTA DI MORO. Magnifico. Tirò fuori tutta la cera con un vecchio cucchiaio e la lasciò cadere nella pentola. L’avrebbe mescolata più tardi.", "k": "p", "it": "mia"}, {"t": "Appoggiò il pentolone sul tavolo e aprì l’armadio che serviva da dispensa. Gli scaffali erano ricolmi di bottiglie e barattoli d’ogni genere. Scelse i seguenti e li vuotò uno a uno nel pentolone:", "k": "p"}, {"t": "UNA SCATOLA DI CURRY IN POLVERE,", "k": "li"}, {"t": "UNA SCATOLA DI SENAPE IN POLVERE,", "k": "li"}, {"t": "UNA SCATOLA DI PEPERONCINI ROSSI EXTRA PICCANTI,", "k": "li"}, {"t": "UNA SCATOLA DI PEPE NERO IN GRANI,", "k": "li"}, {"t": "UN BARATTOLO DI SALSA DI RAFANO.", "k": "li"}, {"t": "«Ecco fatto!» esclamò. «Proprio quel che ci voleva!»", "k": "p", "q": ["G", "G"]}, {"t": "«George!» gracchiò la voce stridula dalla stanza accanto. «Con chi stai parlando, là dentro? Cosa combini?»", "k": "p", "q": ["N", "N"]}, {"t": "«Niente, nonna, assolutamente niente» gridò lui di rimando.", "k": "p", "q": ["G"]}, {"t": "«È già l’ora della mia medicina?»", "k": "p", "q": ["N"]}, {"t": "«No, nonna, manca ancora circa mezz’ ora».", "k": "p", "q": ["G"]}, {"t": "«Be’, vedi di non scordartene».", "k": "p", "q": ["N"]}, {"t": "«Non me ne scorderò, nonna» rispose George. «Puoi star tranquilla!»", "k": "p", "q": ["G", "G"]}];
+  var synth = window.speechSynthesis;
+  var $ = function (id) { return document.getElementById(id); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem("medicina." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem("medicina." + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- testo -> parole ---------- */
+  var textEl = $("testo");
+  var words = [];
+  DATA.forEach(function (para, pi) {
+    var p = document.createElement("p");
+    p.className = para.k === "li" ? "li" : "p";
+    var toks = para.t.split(/\s+/).filter(Boolean);
+    var inq = false, qi = -1;
+    toks.forEach(function (tok, ti) {
+      var role = "T";
+      if (tok.indexOf("«") !== -1) { inq = true; qi++; }
+      if (inq) role = (para.q && para.q[qi]) || "G";
+      if (tok.indexOf("»") !== -1) inq = false;
+      var s = document.createElement("span");
+      s.className = "w";
+      s.textContent = tok;
+      var letters = tok.replace(/[^A-Za-zÀ-ÿ]/g, "");
+      if (letters.length >= 2 && letters === letters.toUpperCase()) s.classList.add("prod");
+      if (para.it && tok.replace(/[^A-Za-zÀ-ÿ]/g, "") === para.it) s.classList.add("it");
+      s.dataset.i = String(words.length);
+      p.appendChild(s);
+      if (ti < toks.length - 1) p.appendChild(document.createTextNode(" "));
+      words.push({ el: s, text: tok, p: pi, c: 0, role: role });
+    });
+    textEl.appendChild(p);
+  });
+
+  /* ---------- frasi (pezzi da leggere uno alla volta) ---------- */
+  var chunks = [];
+  (function () {
+    var start = 0, n = 0;
+    words.forEach(function (w, i) {
+      n++;
+      var last = i === words.length - 1 || words[i + 1].p !== w.p;
+      var endS = /[.!?…;:]["»”’')]*$/.test(w.text);
+      var softBreak = n >= 20 && /,["»”’')]*$/.test(w.text);
+      var roleChange = !last && words[i + 1].role !== w.role;
+      if (last || endS || softBreak || roleChange || n >= 30) {
+        chunks.push({ start: start, end: i, role: words[start].role });
+        for (var k = start; k <= i; k++) words[k].c = chunks.length - 1;
+        start = i + 1; n = 0;
+      }
+    });
+  })();
+
+  /* ---------- stato ---------- */
+  var state = "idle";      // idle | playing | paused
+  var cur = -1;            // parola corrente
+  var session = 0;         // invalida i callback di letture annullate
+  var timer = null;
+  var fallback = false;    // evidenziazione a tempo se il browser non invia i confini di parola
+  var finished = false;
+  var rate = 0.9;
+  var playBtn = $("play"), restartBtn = $("restart"), statusEl = $("status"), noteEl = $("note");
+
+  function setState(s) {
+    state = s;
+    var label = s === "playing" ? "Pausa" : (s === "paused" ? "Riprendi" : "Ascolta");
+    $("play-label").textContent = label;
+    $("ico-play").hidden = s === "playing";
+    $("ico-pause").hidden = s !== "playing";
+    playBtn.setAttribute("aria-label", label + " il brano");
+    updateStatus();
+  }
+  function updateStatus() {
+    var txt = state === "playing" ? "In lettura" : (state === "paused" ? "In pausa" : (finished ? "Lettura finita" : "Pronto"));
+    var pct = cur >= 0 ? Math.round(((cur + 1) / words.length) * 100) : 0;
+    statusEl.textContent = txt + (cur >= 0 ? " · " + pct + "%" : "");
+    $("prog").style.width = pct + "%";
+  }
+  function showNote(t) { noteEl.textContent = t || ""; }
+
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    var top = $("settings").getBoundingClientRect().top < 0 ? 140 : 120;
+    return r.top > top && r.bottom < window.innerHeight - 90;
+  }
+  function setCurrent(i) {
+    if (i === cur) return;
+    if (cur >= 0) words[cur].el.classList.remove("now");
+    if (i < 0 || i < cur) {
+      words.forEach(function (w, k) { w.el.classList.toggle("read", k < i); });
+    } else {
+      for (var k = Math.max(cur, 0); k < i; k++) words[k].el.classList.add("read");
+    }
+    cur = i;
+    if (i >= 0) {
+      var el = words[i].el;
+      el.classList.add("now");
+      if (!inView(el)) el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    }
+    updateStatus();
+  }
+
+  /* ---------- voci ---------- */
+  var ROLES = ["T", "N", "G"];
+  var PITCH_DEF = { T: 1.0, N: 1.5, G: 1.2 };
+  var SAMPLE = {
+    T: "George tirò fuori un enorme pentolone dall’armadio e l’appoggiò sul tavolo di cucina.",
+    N: "George! Che stai facendo?",
+    G: "Niente, nonna. Sto riordinando la cucina."
+  };
+  var voices = [];
+  var vSel = {}, pEl = {}, pitch = {};
+  function fmtP(x) { return x.toFixed(2).replace(".", ","); }
+  ROLES.forEach(function (r) {
+    vSel[r] = $("voice-" + r);
+    pEl[r] = $("pitch-" + r);
+    pitch[r] = store.get("pitch." + r, PITCH_DEF[r]);
+    pEl[r].value = String(pitch[r]);
+    $("pitch-val-" + r).textContent = fmtP(pitch[r]);
+  });
+  var multi = $("multi");
+  multi.checked = store.get("multi", true);
+
+  function loadVoices() {
+    if (!synth) return;
+    var all = synth.getVoices() || [];
+    voices = all.filter(function (v) { return /^it/i.test(v.lang); })
+      .sort(function (a, b) { return (b.localService ? 1 : 0) - (a.localService ? 1 : 0); });
+    var defaults = { T: 0, N: voices.length > 1 ? 1 : 0, G: voices.length > 2 ? 2 : 0 };
+    ROLES.forEach(function (r) {
+      var sel = vSel[r];
+      sel.innerHTML = "";
+      if (!voices.length) {
+        var o = document.createElement("option");
+        o.value = ""; o.textContent = "Voce predefinita del dispositivo";
+        sel.appendChild(o);
+      } else {
+        voices.forEach(function (v) {
+          var o = document.createElement("option");
+          o.value = v.voiceURI;
+          o.textContent = v.name + (v.localService ? "" : " (online)");
+          sel.appendChild(o);
+        });
+        var saved = store.get("voice." + r, "");
+        var ok = saved && voices.some(function (v) { return v.voiceURI === saved; });
+        sel.value = ok ? saved : voices[defaults[r]].voiceURI;
+      }
+    });
+    if (!voices.length && all.length) showNote("Su questo dispositivo non c'è una voce italiana: la lettura userà la voce predefinita e potrebbe suonare strana. Puoi installare una voce italiana dalle impostazioni di sistema.");
+    else showNote("");
+  }
+  function voiceFor(r) {
+    for (var i = 0; i < voices.length; i++) if (voices[i].voiceURI === vSel[r].value) return voices[i];
+    return null;
+  }
+  function preview(r) {
+    if (!synth) return;
+    session++; clearTimeout(timer); synth.cancel();
+    if (state === "playing") setState("paused");
+    var u = new SpeechSynthesisUtterance(SAMPLE[r]);
+    var v = voiceFor(r);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "it-IT"; }
+    u.rate = rate; u.pitch = pitch[r];
+    synth.speak(u);
+  }
+
+  function startFallback(id, from, end) {
+    var j = from;
+    var step = function () {
+      if (id !== session || !fallback) return;
+      setCurrent(j);
+      var ms = (words[j].text.length * 62 + 140) / rate;
+      j++;
+      if (j > end) return;
+      timer = setTimeout(step, ms);
+    };
+    step();
+  }
+
+  function speakFrom(i, keepQueue) {
+    if (!synth) { setCurrent(i); return; }
+    session++;
+    var id = session;
+    clearTimeout(timer);
+    if (!keepQueue) synth.cancel();
+    finished = false;
+    var c = chunks[words[i].c];
+    var text = "", offs = [];
+    for (var j = i; j <= c.end; j++) { offs.push({ j: j, s: text.length }); text += words[j].text + " "; }
+    var u = new SpeechSynthesisUtterance(text.trim());
+    var role = multi.checked ? c.role : "T";
+    var v = voiceFor(role);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "it-IT"; }
+    u.rate = rate;
+    u.pitch = pitch[role];
+    var gotBoundary = false;
+    u.onstart = function () {
+      if (id !== session) return;
+      setCurrent(i);
+      if (fallback) startFallback(id, i, c.end);
+      else timer = setTimeout(function () {
+        if (id === session && !gotBoundary) { fallback = true; startFallback(id, cur < 0 ? i : cur, c.end); }
+      }, 1400);
+    };
+    u.onboundary = function (e) {
+      if (id !== session) return;
+      if (e.name && e.name !== "word") return;
+      gotBoundary = true; fallback = false; clearTimeout(timer);
+      var k = 0;
+      for (var m = 0; m < offs.length; m++) { if (offs[m].s <= e.charIndex) k = m; else break; }
+      setCurrent(offs[k].j);
+    };
+    u.onend = function () {
+      if (id !== session) return;
+      clearTimeout(timer);
+      if (c.end + 1 < words.length) speakFrom(c.end + 1, true);
+      else finish();
+    };
+    u.onerror = function (e) {
+      if (id !== session) return;
+      if (e.error === "interrupted" || e.error === "canceled") return;
+      clearTimeout(timer);
+      setState("idle");
+      showNote("La lettura si è interrotta (" + (e.error || "errore") + "). Riprova, oppure scegli un'altra voce nelle impostazioni.");
+      $("settings").open = true;
+    };
+    setState("playing");
+    synth.speak(u);
+  }
+
+  function finish() {
+    session++;
+    clearTimeout(timer);
+    finished = true;
+    if (cur >= 0) words[cur].el.classList.remove("now");
+    words.forEach(function (w) { w.el.classList.add("read"); });
+    cur = words.length - 1;
+    setState("idle");
+  }
+  function pause() {
+    session++;
+    clearTimeout(timer);
+    if (synth) synth.cancel();
+    setState("paused");
+  }
+  function play() {
+    if (!synth) return;
+    var i = finished ? 0 : Math.max(cur, 0);
+    if (finished) setCurrent(-1);
+    speakFrom(i);
+  }
+  function toggle() { if (state === "playing") pause(); else play(); }
+
+  playBtn.addEventListener("click", toggle);
+  restartBtn.addEventListener("click", function () {
+    finished = false;
+    setCurrent(-1);
+    words[0].el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    speakFrom(0);
+  });
+  textEl.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t.classList || !t.classList.contains("w")) return;
+    finished = false;
+    var i = parseInt(t.dataset.i, 10);
+    setCurrent(i);
+    speakFrom(i);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.code !== "Space") return;
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (/^(INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY)$/.test(tag)) return;
+    e.preventDefault();
+    toggle();
+  });
+  window.addEventListener("pagehide", function () { if (synth) synth.cancel(); });
+
+  /* ---------- impostazioni ---------- */
+  function fmtRate(r) { return r.toFixed(2).replace(".", ",") + "×"; }
+  var rateEl = $("rate");
+  rate = store.get("rate", 0.9);
+  rateEl.value = String(rate);
+  $("rate-val").textContent = fmtRate(rate);
+  rateEl.addEventListener("input", function () {
+    rate = parseFloat(rateEl.value);
+    $("rate-val").textContent = fmtRate(rate);
+    store.set("rate", rate);
+  });
+  rateEl.addEventListener("change", function () { if (state === "playing") speakFrom(Math.max(cur, 0)); });
+
+  ROLES.forEach(function (r) {
+    vSel[r].addEventListener("change", function () { store.set("voice." + r, vSel[r].value); preview(r); });
+    pEl[r].addEventListener("input", function () {
+      pitch[r] = parseFloat(pEl[r].value);
+      $("pitch-val-" + r).textContent = fmtP(pitch[r]);
+      store.set("pitch." + r, pitch[r]);
+    });
+    pEl[r].addEventListener("change", function () { preview(r); });
+    $("test-" + r).addEventListener("click", function () { preview(r); });
+  });
+  multi.addEventListener("change", function () {
+    store.set("multi", multi.checked);
+    if (state === "playing") speakFrom(Math.max(cur, 0));
+  });
+
+  var fs = store.get("fs", 24);
+  function applySize() { document.documentElement.style.setProperty("--fs", fs + "px"); }
+  applySize();
+  $("bigger").addEventListener("click", function () { fs = Math.min(44, fs + 2); store.set("fs", fs); applySize(); });
+  $("smaller").addEventListener("click", function () { fs = Math.max(16, fs - 2); store.set("fs", fs); applySize(); });
+
+  var fontSel = $("font");
+  function applyFont() { document.body.className = fontSel.value; }
+  fontSel.value = store.get("font", "f-atk");
+  applyFont();
+  fontSel.addEventListener("change", function () { store.set("font", fontSel.value); applyFont(); });
+
+  var dimEl = $("dim"), prodEl = $("prod");
+  dimEl.checked = store.get("dim", false);
+  prodEl.checked = store.get("prod", false);
+  function applyAids() {
+    textEl.classList.toggle("dim", dimEl.checked);
+    textEl.classList.toggle("showprod", prodEl.checked);
+  }
+  applyAids();
+  dimEl.addEventListener("change", function () { store.set("dim", dimEl.checked); applyAids(); });
+  prodEl.addEventListener("change", function () { store.set("prod", prodEl.checked); applyAids(); });
+
+  if (window.matchMedia && matchMedia("(min-width: 760px)").matches) $("settings").open = true;
+
+  /* ---------- avvio ---------- */
+  if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
+    playBtn.disabled = true; restartBtn.disabled = true;
+    showNote("Questo browser non supporta la lettura ad alta voce. Prova con Chrome, Edge o Safari aggiornati.");
+    $("settings").open = true;
+    synth = null;
+  } else {
+    loadVoices();
+    if (synth.addEventListener) synth.addEventListener("voiceschanged", loadVoices);
+    else synth.onvoiceschanged = loadVoices;
+  }
+  updateStatus();
+})();
+</script>
+</body>
+</html>
