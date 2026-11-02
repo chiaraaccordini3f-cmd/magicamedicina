@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La medicina di George</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@500;600&family=Lexend:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: una colonna di lettura stretta, barra comandi fissa in alto, impostazioni a scomparsa.
+   Il nome della pagina è la scena: pozione verde, evidenziatore giallo. */
+:root {
+  --bg: #F2F7F5;
+  --surface: #FFFFFF;
+  --ink: #14211D;
+  --muted: #4B605A;
+  --line: #CFDDD8;
+  --accent: #0F7A5C;
+  --accent-ink: #FFFFFF;
+  --hl: #FFD43B;
+  --hl-ink: #1A1500;
+  --hover: #DDEFE8;
+  --read: #7A8F89;
+  --prod: #7B3FA0;
+  --err: #B3261E;
+  --hit: #CFE6FF;
+  --hit-ink: #0B2540;
+  --hit-cur: #1F5FBF;
+  --hit-cur-ink: #FFFFFF;
+  --font-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --font-atk: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --font-lex: "Lexend", "Verdana", system-ui, sans-serif;
+  --font-ser: Georgia, "Times New Roman", serif;
+  --font-body: var(--font-atk);
+  --fs: 24px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1815; --surface: #16241F; --ink: #E9F2EE; --muted: #9DB5AD; --line: #2B3F38;
+    --accent: #3DDBA9; --accent-ink: #05241A; --hl: #FFD43B; --hl-ink: #1A1500;
+    --hover: #21362F; --read: #6F8A81; --prod: #C9A0F0; color-scheme: dark;
+    --hit: #1E3F66; --hit-ink: #DCEBFF; --hit-cur: #8CC0FF; --hit-cur-ink: #06182E; --err: #FF9A92;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1815; --surface: #16241F; --ink: #E9F2EE; --muted: #9DB5AD; --line: #2B3F38;
+  --accent: #3DDBA9; --accent-ink: #05241A; --hl: #FFD43B; --hl-ink: #1A1500;
+  --hover: #21362F; --read: #6F8A81; --prod: #C9A0F0; color-scheme: dark;
+  --hit: #1E3F66; --hit-ink: #DCEBFF; --hit-cur: #8CC0FF; --hit-cur-ink: #06182E; --err: #FF9A92;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-top: 0; padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
+}
+body.f-lex { --font-body: var(--font-lex); }
+body.f-ser { --font-body: var(--font-ser); }
+.wrap { max-width: 52rem; margin: 0 auto; }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+header { padding: 28px 0 14px; }
+.kicker { margin: 0 0 6px; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.9rem, 6vw, 2.9rem); line-height: 1.1; text-wrap: balance; }
+.lead { margin: 0; max-width: 40rem; color: var(--muted); }
+.chaps { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.chap { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 20px 6px 8px; border-radius: 30px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; cursor: pointer; text-align: left; }
+.chap:hover { border-color: var(--accent); }
+.chap .n { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--hover); font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; }
+.chap[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chap[aria-current="true"] .n { background: var(--accent-ink); color: var(--accent); }
+.pager { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 0; }
+.pager .btn { height: auto; padding-top: 10px; padding-bottom: 10px; text-align: left; }
+.hdr-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+dialog { width: min(44rem, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font-family: var(--font-body); overflow: auto; }
+dialog::backdrop { background: rgba(8, 20, 16, .55); }
+.loader { display: flex; flex-direction: column; gap: 14px; padding: 20px; margin: 0; }
+.loader h2 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; }
+.loader input[type=text], .loader textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 2px solid var(--line); background: var(--bg); min-height: 44px; }
+.loader textarea { min-height: 12rem; resize: vertical; line-height: 1.5; }
+.loader textarea.drag { border-color: var(--accent); }
+.loader input[type=file] { max-width: 100%; min-height: 44px; }
+.loader .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.msg { margin: 0; font-size: .9rem; font-weight: 700; color: var(--err); }
+.msg.ok { color: var(--accent); }
+.msg:empty { display: none; }
+
+.dock {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.dock .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-bottom: 10px; }
+.btn {
+  min-height: 48px; padding: 0 18px; border-radius: 10px; border: 2px solid var(--line);
+  background: var(--surface); font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); min-width: 9.5rem; justify-content: center; }
+.btn svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.status { margin-left: auto; font-size: .9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 5px; background: var(--line); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.find { display: flex; gap: 8px; align-items: center; padding-bottom: 10px; margin: 0; }
+.find .box { position: relative; flex: 1 1 8rem; min-width: 0; }
+.find .box > svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: var(--muted); pointer-events: none; }
+.find input[type=search] { width: 100%; min-height: 44px; padding: 0 44px 0 38px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); -webkit-appearance: none; appearance: none; }
+.find input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.find .clr { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; font-size: 1.4rem; line-height: 1; color: var(--muted); }
+.find .clr:hover { background: var(--hover); }
+.btn.icon { min-height: 44px; min-width: 44px; padding: 0; justify-content: center; }
+.qcount { flex: 0 0 auto; font-size: .9rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.qcount:empty { display: none; }
+
+details.settings { margin: 16px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+details.settings summary { cursor: pointer; padding: 12px 16px; font-weight: 700; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 16px 22px; padding: 4px 16px 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label, .field > .lab { font-size: .85rem; font-weight: 700; color: var(--muted); }
+select { min-height: 44px; padding: 0 10px; border-radius: 8px; border: 2px solid var(--line); background: var(--bg); width: 100%; }
+input[type=range] { width: 100%; accent-color: var(--accent); min-height: 44px; }
+.inline { display: flex; align-items: center; gap: 10px; }
+.check { display: flex; align-items: flex-start; gap: 10px; min-height: 32px; }
+.check input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--accent); flex: none; }
+.val { font-variant-numeric: tabular-nums; min-width: 3.2rem; font-weight: 700; }
+.roles { grid-column: 1 / -1; gap: 10px; }
+.role { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr) 12rem auto; gap: 10px 12px; align-items: center; }
+.role b { font-weight: 700; }
+.tone { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); font-weight: 700; }
+.tone input { min-height: 36px; }
+.btn.small { min-height: 40px; padding: 0 14px; }
+.mini { margin: 0; font-size: .85rem; color: var(--muted); }
+@media (max-width: 700px) { .role { grid-template-columns: 1fr auto; } .role b { grid-column: 1 / -1; } .tone { grid-column: 1 / -1; } }
+.note { margin: 0; padding: 0 16px 14px; font-size: .9rem; color: var(--muted); }
+.note:empty { display: none; }
+
+main { padding: 26px 0 0; }
+#testo { font-size: var(--fs); line-height: 1.8; max-width: 36em; text-wrap: pretty; }
+#testo p { margin: 0 0 .7em; }
+#testo p.li { margin: 0; padding-left: 1.4em; font-weight: 700; letter-spacing: .02em; }
+#testo p.li + p:not(.li) { margin-top: .7em; }
+#testo p.li:nth-child(n) { margin-bottom: .1em; }
+#testo p.v { margin: 0; }
+#testo p.ital { font-style: italic; padding-left: 1.2em; }
+#testo p.v.gap { margin-top: .9em; }
+.w { cursor: pointer; border-radius: .2em; transition: background-color .12s; }
+.w:hover { background: var(--hover); }
+.w.it { font-style: italic; }
+#testo .w.hit { background: var(--hit); color: var(--hit-ink); }
+#testo .w.hit.cur { background: var(--hit-cur); color: var(--hit-cur-ink); box-shadow: 0 0 0 .12em var(--hit-cur); }
+#testo.dim .w.read:not(.hit) { color: var(--read); }
+#testo.showprod .w.prod:not(.hit) { color: var(--prod); }
+#testo.showprod .w.prod { text-decoration: underline wavy; text-decoration-thickness: .06em; text-underline-offset: .22em; }
+#testo .w.now, #testo .w.now:hover { background: var(--hl); color: var(--hl-ink); box-shadow: 0 0 0 .1em var(--hl); }
+.hint { margin: 28px 0 0; font-size: .9rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .w { transition: none; } }
+@media (max-width: 520px) {
+  .dock .row { gap: 8px; }
+  .btn { padding: 0 14px; }
+  .btn.primary { min-width: 8.2rem; }
+  .status { font-size: .8rem; }
+}
+</style>
+</head>
+<body class="f-atk">
+<div class="wrap">
+  <header>
+    <p class="kicker" id="kicker">Lettura guidata · Italiano</p>
+    <h1 id="titolo">Preparazione della medicina</h1>
+    <p class="lead">Premi <b>Ascolta</b> e segui con gli occhi: la parola che viene letta si illumina. Tocca una parola per far partire la lettura da lì.</p>
+    <nav class="chaps" id="chaps" aria-label="Capitoli"></nav>
+    <div class="hdr-actions">
+      <button class="btn small" id="open-load" type="button">Carica un altro testo</button>
+      <button class="btn small" id="restore" type="button" hidden>Torna ai capitoli</button>
+    </div>
+  </header>
+
+  <div class="dock" id="dock">
+    <div class="row">
+      <button class="btn primary" id="play" type="button" aria-label="Ascolta il brano">
+        <svg id="ico-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
+        <svg id="ico-pause" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z"/></svg>
+        <span id="play-label">Ascolta</span>
+      </button>
+      <button class="btn" id="restart" type="button">Da capo</button>
+      <span class="status" id="status" role="status" aria-live="polite">Pronto</span>
+    </div>
+    <form class="find" id="find" role="search" autocomplete="off">
+      <div class="box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <label class="sr" for="q">Cerca una parola nel testo</label>
+        <input id="q" type="search" placeholder="Cerca una parola…" enterkeyhint="search" autocapitalize="off" spellcheck="false">
+        <button class="clr" id="qclear" type="button" aria-label="Cancella la ricerca" hidden>×</button>
+      </div>
+      <button class="btn icon" id="qprev" type="button" aria-label="Risultato precedente" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8l7 7-1.6 1.6L12 11.2l-5.4 5.4L5 15z"/></svg></button>
+      <button class="btn icon" id="qnext" type="button" aria-label="Risultato successivo" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16l-7-7 1.6-1.6L12 12.8l5.4-5.4L19 9z"/></svg></button>
+      <span class="qcount" id="qcount" role="status" aria-live="polite"></span>
+    </form>
+    <div class="bar" aria-hidden="true"><i id="prog"></i></div>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary>Impostazioni di lettura</summary>
+    <div class="grid">
+      <div class="field roles">
+        <span class="lab">Voci</span>
+        <label class="check"><input type="checkbox" id="multi"><span id="multi-label">Una voce diversa per ogni personaggio</span></label>
+        <div class="role"><b>Narratore</b><select id="voice-T" aria-label="Voce del narratore"></select>
+          <label class="tone">Tono <input id="pitch-T" type="range" min="0.5" max="2" step="0.05" value="1"><span class="val" id="pitch-val-T">1,00</span></label>
+          <button class="btn small" id="test-T" type="button">Prova</button></div>
+        <div class="role"><b id="rname-N">Nonna</b><select id="voice-N" aria-label="Voce della nonna"></select>
+          <label class="tone">Tono <input id="pitch-N" type="range" min="0.5" max="2" step="0.05" value="1.5"><span class="val" id="pitch-val-N">1,50</span></label>
+          <button class="btn small" id="test-N" type="button">Prova</button></div>
+        <div class="role"><b id="rname-G">George</b><select id="voice-G" aria-label="Voce di George"></select>
+          <label class="tone">Tono <input id="pitch-G" type="range" min="0.5" max="2" step="0.05" value="1.2"><span class="val" id="pitch-val-G">1,20</span></label>
+          <button class="btn small" id="test-G" type="button">Prova</button></div>
+        <p class="mini">Alcune voci ignorano il tono (succede spesso con le voci online). In quel caso scegli voci diverse per la nonna e per George.</p>
+      </div>
+      <div class="field">
+        <label for="rate">Velocità della voce</label>
+        <div class="inline"><input id="rate" type="range" min="0.6" max="1.3" step="0.05" value="0.9"><span class="val" id="rate-val">0,90×</span></div>
+      </div>
+      <div class="field">
+        <span class="lab">Grandezza del testo</span>
+        <div class="inline">
+          <button class="btn" id="smaller" type="button" aria-label="Rimpicciolisci il testo">A−</button>
+          <button class="btn" id="bigger" type="button" aria-label="Ingrandisci il testo">A+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="font">Carattere</label>
+        <select id="font">
+          <option value="f-atk">Molto leggibile (Atkinson)</option>
+          <option value="f-lex">Spaziato (Lexend)</option>
+          <option value="f-ser">Con le grazie (Georgia)</option>
+        </select>
+      </div>
+      <div class="field">
+        <span class="lab">Aiuti visivi</span>
+        <label class="check"><input type="checkbox" id="dim"><span>Attenua le parole già lette</span></label>
+        <label class="check"><input type="checkbox" id="prod"><span>Sottolinea le scritte in MAIUSCOLO (nomi dei prodotti)</span></label>
+        <label class="check"><input type="checkbox" id="qwhole"><span>Nella ricerca, trova solo la parola intera (distingue e / è, la / là)</span></label>
+      </div>
+    </div>
+    <p class="note" id="note" role="status"></p>
+  </details>
+
+  <main>
+    <article id="testo" lang="it"></article>
+    <div class="pager" id="pager">
+      <button class="btn" id="prevbtn" type="button" hidden></button>
+      <button class="btn primary" id="nextbtn" type="button" hidden></button>
+    </div>
+    <p class="hint">Cerca: scrivi una parola e premi Invio per passare alla successiva (Maiusc+Invio per tornare indietro). Il tasto / porta subito alla ricerca. Tocca una parola trovata per far partire la lettura da lì. Barra spaziatrice: ascolta o metti in pausa.</p>
+  </main>
+</div>
+
+<dialog id="loader" aria-labelledby="loader-title">
+  <form class="loader" id="loader-form" autocomplete="off">
+    <h2 id="loader-title">Carica un altro testo</h2>
+    <div class="field">
+      <label for="l-title">Titolo</label>
+      <input id="l-title" type="text" maxlength="120" placeholder="Per esempio: Il gatto e la luna">
+      <span class="mini">Se lo lasci vuoto uso la prima riga del testo, quando sembra un titolo.</span>
+    </div>
+    <div class="field">
+      <label for="l-text">Testo</label>
+      <textarea id="l-text" placeholder="Incolla qui il testo, oppure scegli un file qui sotto."></textarea>
+      <span class="mini" id="l-count" aria-live="polite">0 parole</span>
+    </div>
+    <div class="field">
+      <label for="l-file">Oppure scegli un file (.txt o Word .docx)</label>
+      <input id="l-file" type="file" accept=".txt,.text,.md,.docx,text/plain">
+    </div>
+    <label class="check"><input type="checkbox" id="l-keep"><span>Mantieni gli a capo (filastrocche e poesie)</span></label>
+    <p class="mini">Per un PDF o una pagina web: seleziona il testo, copialo e incollalo qui sopra. I dialoghi tra virgolette si alternano tra due voci diverse.</p>
+    <p class="msg" id="l-msg" role="alert"></p>
+    <div class="actions">
+      <button class="btn primary" id="l-use" type="submit">Usa questo testo</button>
+      <button class="btn" id="l-cancel" type="button">Annulla</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  var CH = [{"title": "Preparazione della medicina", "data": [{"t": "George tirò fuori un enorme pentolone dall’armadio e l’appoggiò sul tavolo di cucina.", "k": "p"}, {"t": "«George!» gridò la voce stridula dalla stanza accanto. «Che stai facendo?»", "k": "p", "q": ["N", "N"]}, {"t": "«Niente, nonna».", "k": "p", "q": ["G"]}, {"t": "«Non credere che non ti senta solo perché hai chiuso la porta! Stai giocando con le pentole!»", "k": "p", "q": ["N"]}, {"t": "«Sto riordinando la cucina, nonna».", "k": "p", "q": ["G"]}, {"t": "Silenzio.", "k": "p"}, {"t": "George non aveva assolutamente dubbi sul come avrebbe preparato la sua straordinaria medicina. Non intendeva perdere tempo chiedendosi se metterci dentro un po’ di questo o un pizzico di quello. Molto semplicemente, ci avrebbe messo dentro TUTTO ciò che riusciva a trovare. Non avrebbe traccheggiato, nicchiato, esitato; non si sarebbe chiesto se un particolare ingrediente avrebbe steso a terra la vecchia befana o no. La regola sarebbe stata questa: qualunque cosa vedeva, purché fosse liquida, in polvere o cremosa, ce l’avrebbe sbattuta dentro.", "k": "p"}, {"t": "Nessuno mai aveva preparato una medicina simile prima d’allora. Se anche non avesse veramente curato la nonna, avrebbe comunque prodotto dei risultati esplosivi. Sarebbe valsa la pena di vedere quello che succedeva.", "k": "p"}, {"t": "George decise di fare il giro delle stanze, una per una, e vedere cos’avevano da offrirgli.", "k": "p"}, {"t": "Avrebbe cominciato dalla stanza da bagno. Ci sono sempre un sacco di cose strane nei bagni. Così salì le scale, col suo pentolone stretto al petto.", "k": "p"}, {"t": "In bagno, guardò con occhi bramosi il famoso e vietatissimo armadietto dei medicinali. Ma non vi si avvicinò. Era l’unica cosa in tutta la casa che aveva la proibizione di toccare. Aveva fatto solenne promessa ai suoi genitori a questo riguardo, e non intendeva romperla. C’erano delle cose, là dentro, gli avevano detto, che potevano anche ammazzare le persone, e benché lui volesse preparare una pozione micidiale per la nonna, non voleva certo ritrovarsi con un cadavere tra i piedi. George appoggiò la pentola per terra e si mise al lavoro.", "k": "p"}, {"t": "Il primo ingrediente fu una bottiglia con su scritto SHAMPOO SETALUCE: CAPELLI MORBIDI E LUCENTI. La vuotò nella pentola. «Questo le dovrebbe ripulire ben bene le budella» si disse.", "k": "p", "q": ["G"]}, {"t": "Prese un tubetto pieno di DENTIFRICIO e lo strizzò fino in fondo facendone uscire un unico lungo verme. «Forse questo le sbiancherà un po’ quei suoi orrendi denti marroncini».", "k": "p", "q": ["G"]}, {"t": "C’era una bomboletta spray di SAPONE DA BARBA SUPERSCHIUMA che apparteneva a suo padre. A George piaceva da matti giocare con le bombole spray. Premette il pulsante e vi tenne il dito sopra finché dentro la bombola non rimase più nulla. Una meravigliosa montagna di schiuma bianca si gonfiò nel pentolone.", "k": "p"}, {"t": "Poi con le dita tirò fuori il contenuto di un barattolo di CREMA PER IL VISO VITAMINIZZATA.", "k": "p"}, {"t": "Rovesciò nella pentola una boccettina di SMALTO PER UNGHIE rosso. ‘Se il dentifricio non le pulisce i denti’ pensò, ‘allora questo glieli dipingerà d’un bel rosso brillante’.", "k": "p"}, {"t": "Trovò un altro barattolo di una roba cremosa con su scritto DEPILATORE. SPALMARLO SULLE GAMBE diceva, E LASCIARLO AGIRE PER CINQUE MINUTI. Senza pensarci due volte, George lo vuotò tutto dentro il pentolone.", "k": "p"}, {"t": "C’era poi un flacone con dentro un liquido giallo chiamato FAMOSA LOZIONE ANTIFORFORA DEL DOTTOR FIORE. Ce lo buttò tutto dentro.", "k": "p"}, {"t": "E una cosa che si chiamava BRILLADENT PER LA PULIZIA DELLE DENTIERE. Era una polverina bianca. Buttò dentro anche quella.", "k": "p"}, {"t": "Trovò un’altra bomboletta spray, DEODORANTE SPRAY VIAODOR VI LIBERA diceva, DEI CATTIVI ODORI DEL CORPO PER UN’INTERA GIORNATA. ‘Proprio quello di cui lei ha urgente bisogno’ si disse George, e spruzzò l’intera bombola dentro il pentolone.", "k": "p"}, {"t": "PARAFFINA LIQUIDA, si chiamava il prodotto accanto. Era un grosso flacone. George non aveva la minima idea di cosa provocasse, ma ce lo buttò dentro lo stesso.", "k": "p"}, {"t": "E con questo, pensò guardandosi attorno, aveva esaurito la stanza da bagno.", "k": "p"}, {"t": "Sulla toilette di sua madre, in camera da letto, trovò un’altra deliziosa bombola. LACCA LUSTER. TENERE A VENTI CENTIMETRI DAI CAPELLI E SPRUZZARE LEGGERMENTE. George la spruzzò tutta quanta dentro la pentola. Era davvero spassoso trafficare con quelle bombole.", "k": "p"}, {"t": "C’era una boccetta di profumo che si chiamava FIORI DI RAPA. Sapeva di gorgonzola. Lo vuotò nella pentola.", "k": "p"}, {"t": "Rovesciò dentro anche una grossa scatola tonda di CIPRIA. Si chiamava GESSO ROSA. Sopra c’era un piumino da cipria, e George buttò dentro anche quello per scaramanzia.", "k": "p"}, {"t": "Trovò un paio di ROSSETTI. Tirò fuori i bastoncini rossi e unti dai loro astucci e li aggiunse all’intruglio.", "k": "p"}, {"t": "La camera da letto non aveva altro da offrire, perciò George scese col suo pentolone difilato nella lavanderia, dove gli scaffali erano pieni di ogni sorta di articoli per la casa.", "k": "p"}, {"t": "Il primo che tirò giù era una grossa scatola di SUPERBIANCO PER LAVATRICI AUTOMATICHE. LO SPORCO diceva, SCOMPARE COME PER MAGIA. George non sapeva se la nonna fosse automatica o meno, però era senz’altro una vecchia sporcacciona. «Perciò è meglio che se la prenda tutta» disse, rovesciandoci dentro l’intera scatola.", "k": "p", "q": ["G"]}, {"t": "Poi c’era un grosso barattolo di CERABON PER PAVIMENTI. RIMUOVE LA LORDURA E LA SPORCIZIA DAL VOSTRO PAVIMENTO E LO LASCIA LUCIDO E BRILLANTE. George tirò con le dita fuori dal barattolo la cera molle e arancione e la lasciò cadere nella pentola.", "k": "p"}, {"t": "Poi rovistò nella scatola del necessario per pulire le scarpe: spazzole, scatolette di cera e panni di lana. ‘Vediamo’, pensò, ‘la medicina della nonna è marrone, perciò anche la mia medicina dev’essere marrone o lei sospetterà un tranello’. Per colorarla, decise, avrebbe usato la CERA PER SCARPE MARRONE. Scelse la scatoletta TESTA DI MORO. Magnifico. Tirò fuori tutta la cera con un vecchio cucchiaio e la lasciò cadere nella pentola. L’avrebbe mescolata più tardi.", "k": "p", "it": "mia"}, {"t": "Appoggiò il pentolone sul tavolo e aprì l’armadio che serviva da dispensa. Gli scaffali erano ricolmi di bottiglie e barattoli d’ogni genere. Scelse i seguenti e li vuotò uno a uno nel pentolone:", "k": "p"}, {"t": "UNA SCATOLA DI CURRY IN POLVERE,", "k": "li"}, {"t": "UNA SCATOLA DI SENAPE IN POLVERE,", "k": "li"}, {"t": "UNA SCATOLA DI PEPERONCINI ROSSI EXTRA PICCANTI,", "k": "li"}, {"t": "UNA SCATOLA DI PEPE NERO IN GRANI,", "k": "li"}, {"t": "UN BARATTOLO DI SALSA DI RAFANO.", "k": "li"}, {"t": "«Ecco fatto!» esclamò. «Proprio quel che ci voleva!»", "k": "p", "q": ["G", "G"]}, {"t": "«George!» gracchiò la voce stridula dalla stanza accanto. «Con chi stai parlando, là dentro? Cosa combini?»", "k": "p", "q": ["N", "N"]}, {"t": "«Niente, nonna, assolutamente niente» gridò lui di rimando.", "k": "p", "q": ["G"]}, {"t": "«È già l’ora della mia medicina?»", "k": "p", "q": ["N"]}, {"t": "«No, nonna, manca ancora circa mezz’ ora».", "k": "p", "q": ["G"]}, {"t": "«Be’, vedi di non scordartene».", "k": "p", "q": ["N"]}, {"t": "«Non me ne scorderò, nonna» rispose George. «Puoi star tranquilla!»", "k": "p", "q": ["G", "G"]}]}, {"title": "Pillole per animali", "data": [{"t": "A quel punto, George ebbe un’improvvisa ispirazione fantastica. D’accordo che l’armadietto dei medicinali in casa gli era severamente vietato, ma le medicine che suo padre teneva sulla mensola nel capanno accanto al pollaio? Le medicine per gli animali?", "k": "p"}, {"t": "Come le doveva considerare, quelle?", "k": "p", "it": [4]}, {"t": "Nessuno gli aveva mai detto di non toccarle.", "k": "p"}, {"t": "Guardiamoci negli occhi, si disse George. La lacca per capelli e la schiuma da barba e il lucido da scarpe vanno benissimo, e di certo provocheranno delle stupende esplosioni dentro la vecchia megera, ma quello che ora occorre alla mistura magica è un tocco di veri medicinali, vere pillole e veri ricostituenti, per darle forza ed efficacia.", "k": "p", "it": [45]}, {"t": "George sollevò il pesante pentolone ormai pieno per tre quarti e uscì barcollando dalla porta sul retro. Traversò il cortile e si diresse verso il capanno degli attrezzi accanto al pollaio. Sapeva che non ci avrebbe trovato suo padre. Stava tagliando il fieno in un campo.", "k": "p"}, {"t": "Entrò nel vecchio capanno polveroso e posò la pentola sul banco da lavoro. Poi guardò verso lo scaffale dei medicinali. C’erano cinque grossi flaconi lassù. Due erano pieni di pillole, due di roba liquida e uno era pieno di polvere.", "k": "p"}, {"t": "«Li utilizzerò tutti» disse George. «La nonna ne ha bisogno. Accidenti se ne ha bisogno!»", "k": "p", "q": ["G", "G"]}, {"t": "La prima bottiglia che tirò giù conteneva una polvere arancione. L’etichetta diceva: PER POLLI CON POLLOMIELITE, CHIOCCIOSITE, TORCIBECCO, ZAMPE DI GALLINA, GALLISMO, PELLE D’OCA, ABBASSAMENTO DELLA CRESTA O CODA DI PAGLIA. AGGIUNGERE UN SOLO CUCCHIAIO IN OGNI SECCHIO DI MANGIME.", "k": "p"}, {"t": "«Be’» disse George ad alta voce mentre versava l’intera bottiglia nella pentola, «speriamo che la vecchia gallina non alzerà troppo la cresta dopo che si sarà beccata una buona dose».", "k": "p", "q": ["G", "G"]}, {"t": "La bottiglia successiva conteneva circa cinquecento enormi pillole viola. PER CAVALLI CON TOSSE CAVALLINA diceva l’etichetta. IL CAVALLO CON TOSSE CAVALLINA DOVREBBE SUCCHIARE UNA PILLOLA DUE VOLTE AL GIORNO.", "k": "p"}, {"t": "«La nonna non avrà la tosse cavallina» disse George, «però nitrisce spesso. Forse una dose da cavallo di questa medicina curerà anche quello». Dentro la pentola finirono tutt’e cinquecento le enormi pillole viola.", "k": "p", "q": ["G", "G"]}, {"t": "Poi c’era una bottiglia d’un liquido denso e giallastro. PER MUCCHE, TORI E VITELLI diceva l’etichetta. CURERÀ IL LATTIME, IL LATTE ALLE GINOCCHIA, LE CORNA ACCARTOCCIATE, LA FLATULENZA NEI TORI, IL MAL D’ORECCHIE, MAL DI DENTI, MAL DI TESTA, MAL DI ZOCCOLI, MAL DI CODA E IL MAL DI MAMMELLE.", "k": "p"}, {"t": "«Quella vecchia vacca brontolona nel soggiorno le ha tutte, queste orribili malattie» disse George. «Le ci vuole una dose massiccia». Con un tonfo e un gorgoglio, il liquido giallo andò a finire nella pentola ormai quasi piena.", "k": "p", "q": ["G", "G"]}, {"t": "La bottiglia successiva conteneva un liquido rosso brillante. DISINFETTANTE PER PECORE diceva l’etichetta. PER MORIA DELLE PECORE, PER PECORE NERE E PECORELLE SMARRITE, E PER LIBERARLE DI ZECCHE E PULCI. VERSARE UN CUCCHIAIO DI DISINFETTANTE IN UN LITRO D’ACQUA E COSPARGERE SULLE PECORE. ATTENZIONE: NON AUMENTARE LA DOSE O LA LANA CADRÀ E L’ANIMALE RIMARRÀ NUDO.", "k": "p"}, {"t": "«Perbacco» disse George, «quanto mi piacerebbe entrare in soggiorno e rovesciarlo addosso alla nonna e vedere le pulci e le zecche schizzarle via di dosso. Ma non posso. Non devo. Perciò sono costretto a fargliela bere». Versò la medicina rossa nella pentola.", "k": "p", "q": ["G", "G"]}, {"t": "L’ultima bottiglia sullo scaffale era piena di pillole d’un verde pallido. PILLOLE PORCINE diceva la scritta. PER MAIALI AFFETTI DA ZAMPONE, PIÈ DI PORCO, PORCITE INTESTINALE, BACHI DA SETOLE, E SCROFOLOSI. SOMMINISTRARE UNA PILLOLA AL GIORNO. IN CASI GRAVI SE NE POSSONO DARE DUE, MA DOSI SUPERIORI FARANNO INSACCARE IL MAIALE.", "k": "p"}, {"t": "«Proprio quello che ci vuole» disse George, «per quella brutta porcella della nonna. Avrà bisogno di una superdose». Lasciò cadere tutte le pillole verdi, centinaia e centinaia, dentro la pentola.", "k": "p", "q": ["G", "G"]}, {"t": "Sul banco c’era un vecchio bastone ch’era stato usato per mescolare la vernice. George lo prese e cominciò a rimestare il suo stupendo intruglio. La mistura era densa come crema, e mentre la girava e rigirava, molti meravigliosi colori salirono dal fondo e si fusero insieme, rossi, azzurri, verdi, gialli e marrone.", "k": "p"}, {"t": "George continuò a mescolare finché tutto non fu ben amalgamato, nonostante che centinaia di pillole finite sul fondo non si fossero ancora sciolte. E in superficie galleggiava il piumino da cipria di sua madre. «Dovrò dargli una bollitina» disse George. «Basterà fargli prendere il bollore sul fornello». E con questo tornò barcollando verso casa con l’enorme, pesantissimo pentolone.", "k": "p", "q": ["G", "G"]}, {"t": "Ma poiché strada facendo passò davanti al garage, vi entrò per vedere se poteva trovare altre cose interessanti. Aggiunse i seguenti ingredienti: mezzo litro di OLIO DA MOTORE - per tenere su di giri il motore della nonna; dell’ANTIGELO - per impedire al suo radiatore di gelare d’inverno; un pugno di GRASSO - per ungere le sue giunture cigolanti.", "k": "p"}, {"t": "Poi finalmente tornò in cucina.", "k": "p"}]}, {"title": "La cottura", "data": [{"t": "In cucina, George mise la pentola sul fornello e alzò al massimo la fiamma del gas.", "k": "p"}, {"t": "«George!» strepitò l’orrenda voce dalla stanza accanto. «È l’ora della mia medicina!»", "k": "p", "q": ["N", "N"]}, {"t": "«Non ancora, nonna» le gridò George di rimando. «Mancano ancora venti minuti alle undici».", "k": "p", "q": ["G", "G"]}, {"t": "«E ora quali malestri stai combinando là dentro?» strillò la nonna. «Sento dei rumori».", "k": "p", "q": ["N", "N"]}, {"t": "George pensò che fosse meglio non rispondere a quella domanda. Trovò un cucchiaione di legno in uno dei cassetti di cucina e cominciò a rimestare con forza. L’intruglio nella pentola stava diventando sempre più caldo.", "k": "p"}, {"t": "Presto la meravigliosa mistura cominciò a schiumare e a spumeggiare. Un denso fumo azzurro, color pavone, prese a salire dalla superficie del liquido, e un odore di fuoco e zolfo riempì la cucina, facendo tossire e boccheggiare George. Era un odore che non somigliava a nessun altro.", "k": "p"}, {"t": "Un odore disgustoso e dolciastro, sconcertante e concentrato, turbinoso e travolgente, trasudante magia e stregoneria. Ogni volta che una zaffata gli saliva al naso, gli scoppiavano petardi nel cranio e scosse elettriche gli percorrevano in su e in giù le gambe. Era meraviglioso starsene là a girare quella strabiliante mistura e guardarla fumare, schiumare, spumare e gorgogliare come se fosse viva. A un certo punto avrebbe potuto giurare d’aver visto scintille guizzare nel ribollio della schiuma.", "k": "p"}, {"t": "E a un tratto George si trovò a ballare attorno alla pignatta fumante, cantando strane parole che gli venivano alla mente da non si sa dove:", "k": "p"}, {"t": "Fetida sbroscia, brodo di streghe,", "k": "v", "i": true, "g": true}, {"t": "Schiuma schiumante, stridìo di seghe.", "k": "v", "i": true}, {"t": "Fumano esalano vapori infernali,", "k": "v", "i": true}, {"t": "Scoppian tuonano fulmini astrali.", "k": "v", "i": true}, {"t": "Bolle ribolle gorgoglia fermenta,", "k": "v", "i": true}, {"t": "Sibila sfrigola scricchia lamenta.", "k": "v", "i": true}, {"t": "Di’ le preghiere, nonnina cara!", "k": "v", "i": true}]}, {"title": "Vernice marrone", "data": [{"t": "George spense la fiamma sotto la pentola. Bisognava lasciare al liquido un bel po’ di tempo per raffreddarsi.", "k": "p"}, {"t": "Quando tutto il vapore e la schiuma furono spariti, sbirciò dentro l’enorme pentolone per vedere di che colore fosse ora il meraviglioso decotto. Era di un bell’azzurro vivo e intenso.", "k": "p"}, {"t": "«Ci vuole dell’altro marrone» disse George. «Bisogna assolutamente che sia marrone, o la nonna s’insospettirà».", "k": "p", "q": ["G", "G"]}, {"t": "Corse fuori e si precipitò nel capanno degli attrezzi di suo padre, dove venivano conservate tutte le vernici. Sulla mensola c’era una fila di barattoli di tutti i colori: nero, verde, rosso, rosa, bianco e marrone. Afferrò quella marrone. L’etichetta diceva soltanto: SMALTO LUCIDO MARRONE SCURO, UN LITRO. Prese un cacciavite e fece saltare il coperchio. Il barattolo era pieno per tre quarti. Lo riportò di corsa in cucina. Lo vuotò fino all’ultima goccia nella pentola. Adesso il pentolone era pieno fino all’orlo. Molto delicatamente, George mischiò la vernice al resto dell’intruglio col lungo mestolo di legno. Ah ah! Stava diventando marrone! Un meraviglioso marrone scuro e cremoso.", "k": "p"}, {"t": "«Dov’è la mia medicina, ragazzo?» gracidò la voce stridula dal soggiorno. «Mi hai dimenticata! Lo fai apposta! Lo dirò a tua madre!»", "k": "p", "q": ["N", "N"]}, {"t": "«Non ti ho dimenticata, nonna» gridò George. «Non faccio che pensare a te. Però mancano ancora dieci minuti».", "k": "p", "q": ["G", "G"]}, {"t": "«Sei una larva schifosa!» tornò a strillargli la voce. «Un vermiciattolo pigro e disubbidiente, e stai crescendo troppo in fretta».", "k": "p", "q": ["N", "N"]}, {"t": "George prese dalla credenza la bottiglia della vera medicina della nonna. La stappò e la rovesciò tutta nell’acquaio. Poi riempì la bottiglia con la sua magica mistura usando un piccolo bricco come ramaiolo. Ritappò la bottiglia.", "k": "p"}, {"t": "La mistura si era già sufficientemente raffreddata? Non del tutto. George tenne la bottiglia sotto il rubinetto dell’acqua fredda per un paio di minuti. L’etichetta bagnata si staccò, ma questo non aveva grande importanza. Asciugò la bottiglia con un canovaccio.", "k": "p"}, {"t": "Finalmente tutto era pronto!", "k": "p"}, {"t": "L’ora fatale era scoccata!", "k": "p"}, {"t": "Era arrivato il grande momento!", "k": "p"}, {"t": "«È l’ora della medicina, nonna!» gridò.", "k": "p", "q": ["G"]}, {"t": "«Lo spero bene» fu la ringhiosa risposta.", "k": "p", "q": ["N"]}, {"t": "Il cucchiaio d’argento con cui le veniva sempre data la medicina era pronto sulla credenza. George lo prese.", "k": "p"}, {"t": "Tenendo il cucchiaio in una mano e la bottiglia nell’altra, entrò in soggiorno.", "k": "p"}]}];
+  var chapIdx = 0;
+  var synth = window.speechSynthesis;
+  var $ = function (id) { return document.getElementById(id); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem("medicina." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem("medicina." + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- testo -> parole ---------- */
+  var textEl = $("testo");
+    var DOC_TITLE = document.title;
+  var words = [];
+  var chunks = [];
+  var custom = false;
+
+  function buildText(data) {
+    textEl.textContent = "";
+    words = [];
+    var qc = 0;
+    data.forEach(function (para, pi) {
+      var p = document.createElement("p");
+      p.className = (para.k === "li" ? "li" : (para.k === "v" ? "v" + (para.g ? " gap" : "") : "p")) + (para.i ? " ital" : "");
+      var toks = para.t.split(/\s+/).filter(Boolean);
+      var inq = false, qi = -1;
+      toks.forEach(function (tok, ti) {
+        var opened = false, closing = false;
+        if (/[«“]/.test(tok)) opened = true;
+        else if (!inq && tok.indexOf('"') !== -1) { opened = true; if (tok.split('"').length > 2) closing = true; }
+        else if (inq && tok.indexOf('"') !== -1) closing = true;
+        if (/[»”]/.test(tok)) closing = true;
+        if (opened) { inq = true; qi++; qc++; }
+        var role = "T";
+        if (inq) role = para.q ? (para.q[qi] || "G") : (qc % 2 ? "N" : "G");
+        if (closing) inq = false;
+        var s = document.createElement("span");
+        s.className = "w";
+        s.textContent = tok;
+        var letters = tok.replace(/[^A-Za-zÀ-ÿ]/g, "");
+        if (letters.length >= 2 && letters === letters.toUpperCase()) s.classList.add("prod");
+        if (para.it && (Array.isArray(para.it) ? para.it.indexOf(ti) >= 0 : letters === para.it)) s.classList.add("it");
+        s.dataset.i = String(words.length);
+        p.appendChild(s);
+        if (ti < toks.length - 1) p.appendChild(document.createTextNode(" "));
+        var raw = tok.split(/[’']/);
+        words.push({ el: s, text: tok, p: pi, c: 0, role: role,
+                     parts: raw.map(norm).filter(Boolean), exact: raw.map(exact).filter(Boolean) });
+      });
+      textEl.appendChild(p);
+    });
+
+    chunks = [];
+    var start = 0, n = 0;
+    words.forEach(function (w, i) {
+      n++;
+      var last = i === words.length - 1 || words[i + 1].p !== w.p;
+      var endS = /[.!?…;:]["»”’')]*$/.test(w.text);
+      var softBreak = n >= 20 && /,["»”’')]*$/.test(w.text);
+      var roleChange = !last && words[i + 1].role !== w.role;
+      if (last || endS || softBreak || roleChange || n >= 30) {
+        chunks.push({ start: start, end: i, role: words[start].role });
+        for (var k = start; k <= i; k++) words[k].c = chunks.length - 1;
+        start = i + 1; n = 0;
+      }
+    });
+  }
+
+  /* ---------- stato ---------- */
+  var state = "idle";      // idle | playing | paused
+  var cur = -1;            // parola corrente
+  var session = 0;         // invalida i callback di letture annullate
+  var timer = null;
+  var fallback = false;    // evidenziazione a tempo se il browser non invia i confini di parola
+  var finished = false;
+  var rate = 0.9;
+  var playBtn = $("play"), restartBtn = $("restart"), statusEl = $("status"), noteEl = $("note");
+
+  function setState(s) {
+    state = s;
+    var label = s === "playing" ? "Pausa" : (s === "paused" ? "Riprendi" : "Ascolta");
+    $("play-label").textContent = label;
+    $("ico-play").hidden = s === "playing";
+    $("ico-pause").hidden = s !== "playing";
+    playBtn.setAttribute("aria-label", label + " il brano");
+    updateStatus();
+  }
+  function updateStatus() {
+    var txt = state === "playing" ? "In lettura" : (state === "paused" ? "In pausa" : (finished ? "Lettura finita" : "Pronto"));
+    var pct = cur >= 0 ? Math.round(((cur + 1) / words.length) * 100) : 0;
+    statusEl.textContent = txt + (cur >= 0 ? " · " + pct + "%" : "");
+    $("prog").style.width = pct + "%";
+  }
+  function showNote(t) { noteEl.textContent = t || ""; }
+
+  function inView(el) {
+    var r = el.getBoundingClientRect();
+    var top = $("dock").getBoundingClientRect().bottom + 16;
+    return r.top > top && r.bottom < window.innerHeight - 90;
+  }
+  function setCurrent(i) {
+    if (i === cur) return;
+    if (cur >= 0) words[cur].el.classList.remove("now");
+    if (i < 0 || i < cur) {
+      words.forEach(function (w, k) { w.el.classList.toggle("read", k < i); });
+    } else {
+      for (var k = Math.max(cur, 0); k < i; k++) words[k].el.classList.add("read");
+    }
+    cur = i;
+    if (i >= 0) {
+      var el = words[i].el;
+      el.classList.add("now");
+      if (!inView(el)) el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    }
+    updateStatus();
+  }
+
+  /* ---------- voci ---------- */
+  var ROLES = ["T", "N", "G"];
+  var PITCH_DEF = { T: 1.0, N: 1.5, G: 1.2 };
+  var SAMPLE = {
+    T: "George tirò fuori un enorme pentolone dall’armadio e l’appoggiò sul tavolo di cucina.",
+    N: "George! Che stai facendo?",
+    G: "Niente, nonna. Sto riordinando la cucina."
+  };
+  var voices = [];
+  var vSel = {}, pEl = {}, pitch = {};
+  function fmtP(x) { return x.toFixed(2).replace(".", ","); }
+  ROLES.forEach(function (r) {
+    vSel[r] = $("voice-" + r);
+    pEl[r] = $("pitch-" + r);
+    pitch[r] = store.get("pitch." + r, PITCH_DEF[r]);
+    pEl[r].value = String(pitch[r]);
+    $("pitch-val-" + r).textContent = fmtP(pitch[r]);
+  });
+  var multi = $("multi");
+  multi.checked = store.get("multi", true);
+
+  function loadVoices() {
+    if (!synth) return;
+    var all = synth.getVoices() || [];
+    voices = all.filter(function (v) { return /^it/i.test(v.lang); })
+      .sort(function (a, b) { return (b.localService ? 1 : 0) - (a.localService ? 1 : 0); });
+    var defaults = { T: 0, N: voices.length > 1 ? 1 : 0, G: voices.length > 2 ? 2 : 0 };
+    ROLES.forEach(function (r) {
+      var sel = vSel[r];
+      sel.innerHTML = "";
+      if (!voices.length) {
+        var o = document.createElement("option");
+        o.value = ""; o.textContent = "Voce predefinita del dispositivo";
+        sel.appendChild(o);
+      } else {
+        voices.forEach(function (v) {
+          var o = document.createElement("option");
+          o.value = v.voiceURI;
+          o.textContent = v.name + (v.localService ? "" : " (online)");
+          sel.appendChild(o);
+        });
+        var saved = store.get("voice." + r, "");
+        var ok = saved && voices.some(function (v) { return v.voiceURI === saved; });
+        sel.value = ok ? saved : voices[defaults[r]].voiceURI;
+      }
+    });
+    if (!voices.length && all.length) showNote("Su questo dispositivo non c'è una voce italiana: la lettura userà la voce predefinita e potrebbe suonare strana. Puoi installare una voce italiana dalle impostazioni di sistema.");
+    else showNote("");
+  }
+  function voiceFor(r) {
+    for (var i = 0; i < voices.length; i++) if (voices[i].voiceURI === vSel[r].value) return voices[i];
+    return null;
+  }
+  function preview(r) {
+    if (!synth) return;
+    session++; clearTimeout(timer); synth.cancel();
+    if (state === "playing") setState("paused");
+    var u = new SpeechSynthesisUtterance(SAMPLE[r]);
+    var v = voiceFor(r);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "it-IT"; }
+    u.rate = rate; u.pitch = pitch[r];
+    synth.speak(u);
+  }
+
+  function startFallback(id, from, end) {
+    var j = from;
+    var step = function () {
+      if (id !== session || !fallback) return;
+      setCurrent(j);
+      var ms = (words[j].text.length * 62 + 140) / rate;
+      j++;
+      if (j > end) return;
+      timer = setTimeout(step, ms);
+    };
+    step();
+  }
+
+  function speakFrom(i, keepQueue) {
+    if (!synth) { setCurrent(i); return; }
+    session++;
+    var id = session;
+    clearTimeout(timer);
+    if (!keepQueue) synth.cancel();
+    finished = false;
+    var c = chunks[words[i].c];
+    var text = "", offs = [];
+    for (var j = i; j <= c.end; j++) { offs.push({ j: j, s: text.length }); text += words[j].text + " "; }
+    var u = new SpeechSynthesisUtterance(text.trim());
+    var role = multi.checked ? c.role : "T";
+    var v = voiceFor(role);
+    if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "it-IT"; }
+    u.rate = rate;
+    u.pitch = pitch[role];
+    var gotBoundary = false;
+    u.onstart = function () {
+      if (id !== session) return;
+      setCurrent(i);
+      if (fallback) startFallback(id, i, c.end);
+      else timer = setTimeout(function () {
+        if (id === session && !gotBoundary) { fallback = true; startFallback(id, cur < 0 ? i : cur, c.end); }
+      }, 1400);
+    };
+    u.onboundary = function (e) {
+      if (id !== session) return;
+      if (e.name && e.name !== "word") return;
+      gotBoundary = true; fallback = false; clearTimeout(timer);
+      var k = 0;
+      for (var m = 0; m < offs.length; m++) { if (offs[m].s <= e.charIndex) k = m; else break; }
+      setCurrent(offs[k].j);
+    };
+    u.onend = function () {
+      if (id !== session) return;
+      clearTimeout(timer);
+      if (c.end + 1 < words.length) speakFrom(c.end + 1, true);
+      else finish();
+    };
+    u.onerror = function (e) {
+      if (id !== session) return;
+      if (e.error === "interrupted" || e.error === "canceled") return;
+      clearTimeout(timer);
+      setState("idle");
+      showNote("La lettura si è interrotta (" + (e.error || "errore") + "). Riprova, oppure scegli un'altra voce nelle impostazioni.");
+      $("settings").open = true;
+    };
+    setState("playing");
+    synth.speak(u);
+  }
+
+  function finish() {
+    session++;
+    clearTimeout(timer);
+    finished = true;
+    if (cur >= 0) words[cur].el.classList.remove("now");
+    words.forEach(function (w) { w.el.classList.add("read"); });
+    cur = words.length - 1;
+    setState("idle");
+  }
+  function pause() {
+    session++;
+    clearTimeout(timer);
+    if (synth) synth.cancel();
+    setState("paused");
+  }
+  function play() {
+    if (!synth) return;
+    var i = finished ? 0 : Math.max(cur, 0);
+    if (finished) setCurrent(-1);
+    speakFrom(i);
+  }
+  function toggle() { if (state === "playing") pause(); else play(); }
+
+  playBtn.addEventListener("click", toggle);
+  restartBtn.addEventListener("click", function () {
+    finished = false;
+    setCurrent(-1);
+    words[0].el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    speakFrom(0);
+  });
+  textEl.addEventListener("click", function (e) {
+    var t = e.target;
+    if (!t.classList || !t.classList.contains("w")) return;
+    finished = false;
+    var i = parseInt(t.dataset.i, 10);
+    setCurrent(i);
+    speakFrom(i);
+  });
+  document.addEventListener("keydown", function (e) {
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (e.key === "/" && !/^(INPUT|SELECT|TEXTAREA)$/.test(tag)) { e.preventDefault(); $("q").focus(); $("q").select(); return; }
+    if (e.code !== "Space") return;
+    if (/^(INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY)$/.test(tag)) return;
+    e.preventDefault();
+    toggle();
+  });
+  window.addEventListener("pagehide", function () { if (synth) synth.cancel(); });
+
+  /* ---------- ricerca ---------- */
+  var qEl = $("q"), qCount = $("qcount"), qPrev = $("qprev"), qNext = $("qnext"), qClear = $("qclear"), qWhole = $("qwhole");
+  function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); }
+  function exact(s) { return s.toLowerCase().replace(/[^a-zà-ÿ0-9]/g, ""); }
+  var hits = [], hi = -1;
+  function termOk(w, t, whole) {
+    var list = whole ? w.exact : w.parts;
+    for (var k = 0; k < list.length; k++) {
+      if (whole ? list[k] === t.x : list[k].indexOf(t.n) === 0) return true;
+    }
+    return false;
+  }
+  function markCur(on) {
+    if (hi < 0 || !hits[hi]) return;
+    for (var k = hits[hi].s; k <= hits[hi].e; k++) words[k].el.classList.toggle("cur", on);
+  }
+  function updateFind() {
+    var has = hits.length > 0;
+    qPrev.disabled = qNext.disabled = !has;
+    qClear.hidden = !qEl.value;
+    if (!qEl.value.trim()) qCount.textContent = "";
+    else if (!has) qCount.textContent = "Non trovata";
+    else qCount.textContent = (hi + 1) + " di " + hits.length;
+  }
+  function goHit(n) {
+    if (!hits.length) return;
+    markCur(false);
+    hi = (n + hits.length) % hits.length;
+    markCur(true);
+    var el = words[hits[hi].s].el;
+    if (!inView(el)) el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    updateFind();
+  }
+  function runSearch() {
+    words.forEach(function (w) { w.el.classList.remove("hit", "cur"); });
+    hits = []; hi = -1;
+    var terms = qEl.value.trim().split(/\s+/).map(function (t) { return { n: norm(t), x: exact(t) }; })
+      .filter(function (t) { return t.n; });
+    if (terms.length) {
+      var whole = qWhole.checked;
+      for (var i = 0; i + terms.length <= words.length; i++) {
+        var ok = true;
+        for (var k = 0; k < terms.length; k++) {
+          if (!termOk(words[i + k], terms[k], whole)) { ok = false; break; }
+        }
+        if (ok) hits.push({ s: i, e: i + terms.length - 1 });
+      }
+      hits.forEach(function (h) { for (var k = h.s; k <= h.e; k++) words[k].el.classList.add("hit"); });
+    }
+    if (hits.length) goHit(0); else updateFind();
+  }
+  qWhole.checked = store.get("whole", false);
+  qEl.addEventListener("input", runSearch);
+  qWhole.addEventListener("change", function () { store.set("whole", qWhole.checked); runSearch(); });
+  $("find").addEventListener("submit", function (e) { e.preventDefault(); if (hits.length) goHit(hi + 1); });
+  qNext.addEventListener("click", function () { goHit(hi + 1); });
+  qPrev.addEventListener("click", function () { goHit(hi - 1); });
+  qClear.addEventListener("click", function () { qEl.value = ""; runSearch(); qEl.focus(); });
+  qEl.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { qEl.value = ""; runSearch(); }
+    else if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); goHit(hi - 1); }
+  });
+
+  /* ---------- impostazioni ---------- */
+  function fmtRate(r) { return r.toFixed(2).replace(".", ",") + "×"; }
+  var rateEl = $("rate");
+  rate = store.get("rate", 0.9);
+  rateEl.value = String(rate);
+  $("rate-val").textContent = fmtRate(rate);
+  rateEl.addEventListener("input", function () {
+    rate = parseFloat(rateEl.value);
+    $("rate-val").textContent = fmtRate(rate);
+    store.set("rate", rate);
+  });
+  rateEl.addEventListener("change", function () { if (state === "playing") speakFrom(Math.max(cur, 0)); });
+
+  ROLES.forEach(function (r) {
+    vSel[r].addEventListener("change", function () { store.set("voice." + r, vSel[r].value); preview(r); });
+    pEl[r].addEventListener("input", function () {
+      pitch[r] = parseFloat(pEl[r].value);
+      $("pitch-val-" + r).textContent = fmtP(pitch[r]);
+      store.set("pitch." + r, pitch[r]);
+    });
+    pEl[r].addEventListener("change", function () { preview(r); });
+    $("test-" + r).addEventListener("click", function () { preview(r); });
+  });
+  multi.addEventListener("change", function () {
+    store.set("multi", multi.checked);
+    if (state === "playing") speakFrom(Math.max(cur, 0));
+  });
+
+  var fs = store.get("fs", 24);
+  function applySize() { document.documentElement.style.setProperty("--fs", fs + "px"); }
+  applySize();
+  $("bigger").addEventListener("click", function () { fs = Math.min(44, fs + 2); store.set("fs", fs); applySize(); });
+  $("smaller").addEventListener("click", function () { fs = Math.max(16, fs - 2); store.set("fs", fs); applySize(); });
+
+  var fontSel = $("font");
+  function applyFont() { document.body.className = fontSel.value; }
+  fontSel.value = store.get("font", "f-atk");
+  applyFont();
+  fontSel.addEventListener("change", function () { store.set("font", fontSel.value); applyFont(); });
+
+  var dimEl = $("dim"), prodEl = $("prod");
+  dimEl.checked = store.get("dim", false);
+  prodEl.checked = store.get("prod", false);
+  function applyAids() {
+    textEl.classList.toggle("dim", dimEl.checked);
+    textEl.classList.toggle("showprod", prodEl.checked);
+  }
+  applyAids();
+  dimEl.addEventListener("change", function () { store.set("dim", dimEl.checked); applyAids(); });
+  prodEl.addEventListener("change", function () { store.set("prod", prodEl.checked); applyAids(); });
+
+  if (window.matchMedia && matchMedia("(min-width: 760px)").matches) $("settings").open = true;
+
+  /* ---------- cambio testo ---------- */
+  function applyLabels() {
+    $("rname-N").textContent = custom ? "Dialoghi A" : "Nonna";
+    $("rname-G").textContent = custom ? "Dialoghi B" : "George";
+    $("voice-N").setAttribute("aria-label", custom ? "Voce dei dialoghi A" : "Voce della nonna");
+    $("voice-G").setAttribute("aria-label", custom ? "Voce dei dialoghi B" : "Voce di George");
+    $("multi-label").textContent = custom ? "Voci diverse per i dialoghi (A e B si alternano)" : "Una voce diversa per ogni personaggio";
+  }
+  function renderNav() {
+    var nav = $("chaps"); nav.textContent = "";
+    CH.forEach(function (c, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chap";
+      b.setAttribute("aria-current", (!custom && i === chapIdx) ? "true" : "false");
+      var n = document.createElement("span"); n.className = "n"; n.textContent = String(i + 1);
+      var t = document.createElement("span"); t.textContent = c.title;
+      b.appendChild(n); b.appendChild(t);
+      b.addEventListener("click", function () { openChapter(i); });
+      nav.appendChild(b);
+    });
+    var prev = $("prevbtn"), next = $("nextbtn");
+    prev.hidden = custom || chapIdx === 0;
+    next.hidden = custom || chapIdx >= CH.length - 1;
+    if (!prev.hidden) prev.textContent = "← Capitolo precedente: " + CH[chapIdx - 1].title;
+    if (!next.hidden) next.textContent = "Capitolo successivo: " + CH[chapIdx + 1].title + " →";
+    $("kicker").textContent = custom ? "Lettura guidata · Italiano" : "Capitolo " + (chapIdx + 1) + " di " + CH.length + " · Lettura guidata";
+  }
+  function openChapter(i) {
+    chapIdx = i; store.set("chap", i);
+    loadText(CH[i].data, CH[i].title, false);
+  }
+  function loadText(data, title, isCustom) {
+    session++; clearTimeout(timer);
+    if (synth) synth.cancel();
+    state = "idle"; cur = -1; finished = false; fallback = false;
+    custom = !!isCustom;
+    buildText(data);
+    $("titolo").textContent = title;
+    document.title = isCustom ? title + " · Lettura guidata" : DOC_TITLE;
+    $("restore").hidden = !isCustom;
+    applyLabels();
+    renderNav();
+    setState("idle");
+    runSearch();
+    window.scrollTo(0, 0);
+  }
+
+  /* testo semplice -> paragrafi (e titolo, se manca) */
+  var TERMINAL = /[.!?…:;»”"’')\]]$/;
+  function parseText(raw, title, keep) {
+    var text = raw.replace(/\r\n?/g, "\n").replace(/ /g, " ").trim();
+    var lines = text.split("\n").map(function (l) { return l.replace(/[ \t]+/g, " ").trim(); });
+    var titled = false;
+    if (!title) {
+      var i0 = 0; while (i0 < lines.length && !lines[i0]) i0++;
+      var first = lines[i0] || "";
+      var rest = lines.slice(i0 + 1);
+      var looksTitle = first && first.length <= 80 && !TERMINAL.test(first) && rest.some(Boolean);
+      if (keep) looksTitle = looksTitle && rest[0] === "";   // nelle poesie il titolo è seguito da una riga vuota
+      if (looksTitle && /^[a-zà-ÿ]/.test(rest[0] || "")) looksTitle = false;   // la riga dopo continua la frase: non è un titolo
+      if (looksTitle) { title = first; titled = true; lines = rest; text = lines.join("\n").trim(); }
+    }
+    var data = [];
+    if (keep) {                            // una riga = un verso, le righe vuote separano le strofe
+      var gap = false;
+      lines.forEach(function (l) {
+        if (!l) { if (data.length) gap = true; return; }
+        data.push({ t: l, k: "v", g: gap }); gap = false;
+      });
+    } else {
+      var paras = [];
+      if (/\n\s*\n/.test(text)) {          // paragrafi separati da righe vuote: gli a capo interni sono solo di impaginazione
+        var block = [];
+        lines.concat([""]).forEach(function (l) {
+          if (l) block.push(l); else if (block.length) { paras.push(block.join(" ")); block = []; }
+        });
+      } else {                             // una riga = un paragrafo, ma si ricuciono le righe spezzate a metà frase
+        var acc = "";
+        lines.forEach(function (l) {
+          if (!l) return;
+          acc = acc ? acc + " " + l : l;
+          if (TERMINAL.test(acc)) { paras.push(acc); acc = ""; }
+        });
+        if (acc) paras.push(acc);
+      }
+      data = paras.map(function (t) { return { t: t, k: "p" }; });
+    }
+    return { title: title || "Testo caricato", titled: titled, body: text, data: data };
+  }
+
+  /* ---------- finestra "Carica un altro testo" ---------- */
+  var dlg = $("loader"), lTitle = $("l-title"), lText = $("l-text"), lFile = $("l-file"), lMsg = $("l-msg"), lCount = $("l-count");
+  var MAX_WORDS = 20000, titleTouched = false, lKeep = $("l-keep");
+  function countWords(t) { var m = t.trim().match(/\S+/g); return m ? m.length : 0; }
+  function setMsg(t, ok) { lMsg.textContent = t || ""; lMsg.className = "msg" + (ok ? " ok" : ""); }
+  function updateCount() {
+    var n = countWords(lText.value);
+    lCount.textContent = n.toLocaleString("it-IT") + (n === 1 ? " parola" : " parole");
+  }
+  function openLoader() {
+    var saved = custom ? store.get("custom", null) : null;
+    lTitle.value = saved ? saved.title : "";
+    lText.value = saved ? saved.text : "";
+    lKeep.checked = !!(saved && saved.keep);
+    titleTouched = false; lFile.value = ""; setMsg("");
+    updateCount();
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    lText.focus();
+  }
+  function closeLoader() { if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open"); }
+
+  function decodeText(buf) {
+    try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+    catch (e) { return new TextDecoder("windows-1252").decode(buf); }
+  }
+  var W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  async function readDocx(file) {
+    if (typeof DecompressionStream === "undefined") throw new Error("nodecomp");
+    var buf = await file.arrayBuffer(), u8 = new Uint8Array(buf), dv = new DataView(buf);
+    var e = -1;
+    for (var i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) {
+      if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+    }
+    if (e < 0) throw new Error("zip");
+    var n = dv.getUint16(e + 10, true), q = dv.getUint32(e + 16, true);
+    for (var k = 0; k < n; k++) {
+      if (dv.getUint32(q, true) !== 0x02014b50) break;
+      var method = dv.getUint16(q + 10, true), csize = dv.getUint32(q + 20, true);
+      var nlen = dv.getUint16(q + 28, true), xlen = dv.getUint16(q + 30, true), clen = dv.getUint16(q + 32, true);
+      var off = dv.getUint32(q + 42, true);
+      var name = new TextDecoder().decode(u8.subarray(q + 46, q + 46 + nlen));
+      if (name === "word/document.xml") {
+        var begin = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+        var data = u8.subarray(begin, begin + csize), xmlBytes;
+        if (method === 0) xmlBytes = data;
+        else if (method === 8) xmlBytes = new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+        else throw new Error("zip");
+        var doc = new DOMParser().parseFromString(new TextDecoder("utf-8").decode(xmlBytes), "application/xml");
+        if (doc.getElementsByTagName("parsererror").length) throw new Error("xml");
+        var out = [], ps = doc.getElementsByTagNameNS(W_NS, "p");
+        for (var a = 0; a < ps.length; a++) {
+          var txt = "", nodes = ps[a].getElementsByTagNameNS(W_NS, "*");
+          for (var b = 0; b < nodes.length; b++) {
+            var ln = nodes[b].localName;
+            if (ln === "t") txt += nodes[b].textContent;
+            else if (ln === "tab" || ln === "br" || ln === "cr") txt += " ";
+          }
+          txt = txt.replace(/\s+/g, " ").trim();
+          if (txt) out.push(txt);
+        }
+        return out.join("\n\n");
+      }
+      q += 46 + nlen + xlen + clen;
+    }
+    throw new Error("zip");
+  }
+  async function loadFile(file) {
+    if (!file) return;
+    var nm = file.name.toLowerCase();
+    try {
+      var txt;
+      if (/\.docx$/.test(nm)) txt = await readDocx(file);
+      else if (/\.(txt|text|md)$/.test(nm) || file.type === "text/plain") txt = decodeText(await file.arrayBuffer());
+      else if (/\.doc$/.test(nm)) { setMsg("Questo è un vecchio file Word (.doc). Aprilo in Word e salvalo come .docx, oppure copia e incolla il testo."); return; }
+      else { setMsg("Questo tipo di file non si apre qui. Scegli un file .txt o .docx, oppure incolla il testo."); return; }
+      if (!txt.trim()) { setMsg("Nel file non ho trovato testo."); return; }
+      var base = file.name.replace(/\.[^.]+$/, "").replace(/_+/g, " ").trim();
+      var pr = parseText(txt, "", lKeep.checked);
+      lText.value = pr.titled ? pr.body : txt;
+      if (!titleTouched) lTitle.value = pr.titled ? pr.title : base;
+      updateCount();
+      setMsg("Letto «" + file.name + "». Controlla il testo e premi «Usa questo testo».", true);
+    } catch (err) {
+      setMsg(err && err.message === "nodecomp"
+        ? "Questo browser non apre i file Word: apri il file, copia il testo e incollalo qui."
+        : "Non riesco a leggere questo file. Prova a copiare il testo e incollarlo qui.");
+    }
+  }
+
+  $("open-load").addEventListener("click", openLoader);
+  $("l-cancel").addEventListener("click", closeLoader);
+  lText.addEventListener("input", updateCount);
+  lTitle.addEventListener("input", function () { titleTouched = true; });
+  lFile.addEventListener("change", function () { loadFile(lFile.files && lFile.files[0]); });
+  lText.addEventListener("dragover", function (e) { e.preventDefault(); lText.classList.add("drag"); });
+  lText.addEventListener("dragleave", function () { lText.classList.remove("drag"); });
+  lText.addEventListener("drop", function (e) {
+    e.preventDefault(); lText.classList.remove("drag");
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+  $("loader-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var n = countWords(lText.value);
+    if (!n) { setMsg("Scrivi o incolla un testo, oppure scegli un file."); lText.focus(); return; }
+    if (n > MAX_WORDS) { setMsg("Il testo è molto lungo (" + n.toLocaleString("it-IT") + " parole). Caricane una parte alla volta: il massimo è " + MAX_WORDS.toLocaleString("it-IT") + " parole."); return; }
+    var parsed = parseText(lText.value, lTitle.value.trim(), lKeep.checked);
+    loadText(parsed.data, parsed.title, true);
+    store.set("custom", { title: parsed.title, text: parsed.body, keep: lKeep.checked });
+    closeLoader();
+  });
+  $("restore").addEventListener("click", function () {
+    store.set("custom", null);
+    openChapter(chapIdx);
+  });
+  $("prevbtn").addEventListener("click", function () { openChapter(chapIdx - 1); });
+  $("nextbtn").addEventListener("click", function () { openChapter(chapIdx + 1); });
+
+  /* ---------- avvio ---------- */
+  if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
+    playBtn.disabled = true; restartBtn.disabled = true;
+    showNote("Questo browser non supporta la lettura ad alta voce. Prova con Chrome, Edge o Safari aggiornati.");
+    $("settings").open = true;
+    synth = null;
+  } else {
+    loadVoices();
+    if (synth.addEventListener) synth.addEventListener("voiceschanged", loadVoices);
+    else synth.onvoiceschanged = loadVoices;
+  }
+  var sc = store.get("chap", 0);
+  chapIdx = (sc >= 0 && sc < CH.length) ? sc : 0;
+  var savedText = store.get("custom", null);
+  if (savedText && savedText.text) {
+    var sp = parseText(savedText.text, savedText.title, savedText.keep);
+    loadText(sp.data, sp.title, true);
+    window.scrollTo(0, 0);
+  } else {
+    openChapter(chapIdx);
+  }
+})();
+</script>
+</body>
+</html>
